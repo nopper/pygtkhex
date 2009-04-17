@@ -55,6 +55,10 @@ if test "x$PYGOBJECT_CODEGEN" = xno; then
    AC_MSG_ERROR(could not find pygobject-codegen-2.0 script)
 fi
 
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4)
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
+
 dnl check for pygtk defsdir
 AC_MSG_CHECKING(for pygtk defs)
 PYGTK_DEFSDIR=`$PKG_CONFIG --variable=defsdir pygtk-2.0`
@@ -77,6 +81,7 @@ AC_SUBST(GTKHEX_LIBS)
 dnl output
 AC_CONFIG_FILES([
 Makefile
+src/Makefile
 pygtkhex-1.0.pc:pygtkhex.pc.in
 ])
 
