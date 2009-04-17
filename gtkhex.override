@@ -1,0 +1,453 @@
+/*
+ * gkthex- Python bindings for the GTK hex widget.
+ * Copyright (C) 2009 Francesco Piccinno
+ *
+ *   gtkhex.override: overrides for the gtkhex module.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ */
+%%
+headers
+#define NO_IMPORT_PYGOBJECT
+#include <pygobject.h>
+#include <pygtk/pygtk.h>
+#include <gtkhex/gtkhex.h>
+
+#define GTK_TYPE_HEX (gtk_hex_get_type())
+#define HEX_TYPE_DOCUMENT (hex_document_get_type())
+
+
+/* ---------- GtkHex_AutoHighlight ---------- */
+typedef struct {
+    PyObject_HEAD;
+    GtkHex_AutoHighlight *ahl;
+} PyAutoHighlight;
+staticforward PyTypeObject PyAutoHighlight_Type;
+
+static PyObject *
+ahl_new(GtkHex_AutoHighlight *ahl)
+{
+    PyAutoHighlight *self = NULL;
+
+    self = (PyAutoHighlight *)PyObject_NEW(PyAutoHighlight,
+					                       &PyAutoHighlight_Type);
+    if (self != NULL) {
+        self->ahl = ahl;
+    }
+
+    return (PyObject *)self;
+}
+
+static void
+ahl_dealloc(PyAutoHighlight *self)
+{
+    self->ahl = NULL;
+    PyObject_DEL(self);
+}
+
+static PyObject *
+ahl_tp_getattr(PyAutoHighlight *self, char *attr)
+{
+    PyObject *result = NULL;
+    PyErr_SetString(PyExc_AttributeError, attr);
+    return result;
+}
+
+static long
+ahl_hash(PyAutoHighlight *self)
+{
+    return (long)self->ahl;
+}
+
+static PyMethodDef ahl_methods[] = {
+    { NULL, NULL, 0 }
+};
+
+static PyGetSetDef ahl_getsets[] = {
+    { NULL, (getter)0, (setter)0, NULL, NULL }
+};
+
+static PyTypeObject PyAutoHighlight_Type = {
+    PyObject_HEAD_INIT(&PyAutoHighlight_Type)
+    0,					/* ob_size */
+    "gtkhex.AutoHighlight",			/* tp_name */
+    sizeof(PyAutoHighlight),		/* tp_basicsize */
+    0,					/* tp_itemsize */
+    /* methods */
+    (destructor)ahl_dealloc,	/* tp_dealloc */
+    (printfunc)0,			/* tp_print */
+    (getattrfunc)ahl_tp_getattr,	/* tp_getattr */
+    (setattrfunc)0,			/* tp_setattr */
+    (cmpfunc)0,	/* tp_compare */
+    (reprfunc)0,			/* tp_repr */
+    0,					/* tp_as_number */
+    0,					/* tp_as_sequence */
+    0,					/* tp_as_mapping */
+    (hashfunc)ahl_hash,	/* tp_hash */
+    (ternaryfunc)0,			/* tp_call */
+    (reprfunc)0,			/* tp_str */
+    (getattrofunc)0,			/* tp_getattro */
+    (setattrofunc)0,			/* tp_setattro */
+    0,					/* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,			/* tp_flags */
+    NULL, /* Documentation string */
+    (traverseproc)0,			/* tp_traverse */
+    (inquiry)0,				/* tp_clear */
+    (richcmpfunc)0,			/* tp_richcompare */
+    0,					/* tp_weaklistoffset */
+    (getiterfunc)0,			/* tp_iter */
+    (iternextfunc)0,			/* tp_iternext */
+    ahl_methods,		/* tp_methods */
+    0,					/* tp_members */
+    ahl_getsets,		/* tp_getset */
+    (PyTypeObject *)0,			/* tp_base */
+    (PyObject *)0,			/* tp_dict */
+    0,					/* tp_descr_get */
+    0,					/* tp_descr_set */
+    0,					/* tp_dictoffset */
+    (initproc)0,			/* tp_init */
+    (allocfunc)0,			/* tp_alloc */
+    (newfunc)0,				/* tp_new */
+    0,					/* tp_free */
+    (inquiry)0,				/* tp_is_gc */
+    (PyObject *)0,			/* tp_bases */
+};
+
+%%
+modulename gtkhex
+%%
+import gobject.GObject as PyGObject_Type
+import gtk.Widget as PyGtkWidget_Type
+import gtk.Fixed as PyGtkFixed_Type
+%%
+ignore-glob
+  *_get_type
+  *_load_font
+%%
+new-constructor GTK_TYPE_HEX
+%%
+override gtk_hex_new kwargs
+static int
+_wrap_gtk_hex_new(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "document", NULL };
+    PyGObject *document = NULL;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"O!:GtkHex.__init__", kwlist, &PyHexDocument_Type, &document))
+        return -1;
+    
+    if (document) {
+        self->obj = (GObject *)gtk_hex_new(HEX_DOCUMENT(document->obj));
+        
+        gtk_fixed_set_has_window(GTK_FIXED(self->obj), TRUE);
+        
+        (HEX_DOCUMENT(document->obj))->views = g_list_append(\
+            (HEX_DOCUMENT(document->obj))->views,
+            GTK_HEX(self->obj)
+        );
+    }
+
+    if (!self->obj) {
+        PyErr_SetString(PyExc_RuntimeError, "could not create GtkHex object");
+        return -1;
+    }
+    pygobject_register_wrapper((PyObject *)self);
+    return 0;
+}
+%%
+override gtk_hex_get_selection noargs
+static PyObject *
+_wrap_gtk_hex_get_selection(PyGObject *self)
+{
+    gint start, end;
+
+    if (gtk_hex_get_selection(GTK_HEX(self->obj), &start, &end))
+        return Py_BuildValue("(ii)", start, end);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override gtk_hex_set_font kwargs
+static PyObject *
+_wrap_gtk_hex_set_font(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "font_str", NULL };
+    char *font_str;
+    
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"s:GtkHex.set_font", kwlist, &font_str))
+        return NULL;
+    if (font_str) {
+        gtk_hex_set_font(GTK_HEX(self->obj), gtk_hex_load_font(font_str),
+                         pango_font_description_from_string(font_str));
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override gtk_hex_insert_autohighlight kwargs
+static PyObject *
+_wrap_gtk_hex_insert_autohighlight(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "search", "colour", NULL };
+    gchar *search = NULL, *colour = NULL;
+    int search_len;
+    
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"s#s:GtkHex.insert_autohighlight", kwlist,
+            &search, &search_len, &colour))
+        return NULL;
+
+    if (search && colour) {
+        return ahl_new(gtk_hex_insert_autohighlight(GTK_HEX(self->obj),
+                        search, search_len, colour));
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override gtk_hex_delete_autohighlight kwargs
+static PyObject *
+_wrap_gtk_hex_delete_autohighlight(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = { "ahl", NULL };
+    PyAutoHighlight *ahl = NULL;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"O!:GtkHex.delete_autohighlight", kwlist, &PyAutoHighlight_Type, &ahl))
+        return NULL;
+
+    if (ahl) {
+        if (ahl->ahl) {
+            gtk_hex_delete_autohighlight(GTK_HEX(self->obj), ahl->ahl);
+            ahl_dealloc(ahl);
+        }
+        else
+            PyErr_SetString(PyExc_ValueError, "Parameter 'ahl' already deleted.");
+
+        if (PyErr_Occurred())
+            return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override hex_document_find_forward kwargs
+static PyObject *
+_wrap_hex_document_find_forward(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = {"what", "start", NULL};
+    guchar *what;
+    int what_len;
+    PyObject *py_start = NULL;
+    guint start = 0, found;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s#|O:HexDocument.find_forward", kwlist, &what, &what_len, &py_start))
+        return NULL;
+    
+    if (py_start) {
+        if (PyLong_Check(py_start))
+            start = PyLong_AsUnsignedLong(py_start);
+        else if (PyInt_Check(py_start))
+            start = PyInt_AsLong(py_start);
+        else
+            PyErr_SetString(PyExc_TypeError, "Parameter 'start' must be an int or a long");
+        if (PyErr_Occurred())
+            return NULL;
+    }
+
+    if (hex_document_find_forward(HEX_DOCUMENT(self->obj), start, what, what_len, &found))
+        return PyLong_FromUnsignedLong(found);
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+%%
+override hex_document_find_backward kwargs
+static PyObject *
+_wrap_hex_document_find_backward(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = {"what", "start", NULL};
+    guchar *what;
+    int what_len;
+    PyObject *py_start = NULL;
+    guint start = 0, found;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s#|O:HexDocument.find_backward", kwlist, &what, &what_len, &py_start))
+        return NULL;
+    
+    if (py_start) {
+        if (PyLong_Check(py_start))
+            start = PyLong_AsUnsignedLong(py_start);
+        else if (PyInt_Check(py_start))
+            start = PyInt_AsLong(py_start);
+        else
+            PyErr_SetString(PyExc_TypeError, "Parameter 'start' must be an int or a long");
+        if (PyErr_Occurred())
+            return NULL;
+    }
+
+    if (start <= HEX_DOCUMENT(self->obj)->file_size &&
+        hex_document_find_backward(HEX_DOCUMENT(self->obj), start, what, what_len, &found))
+        return PyLong_FromUnsignedLong(found);
+    else
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+%%
+override gtk_hex_get_byte kwargs
+static PyObject *
+_wrap_gtk_hex_get_byte(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = {"offset", NULL};
+    PyObject *py_offset = NULL;
+    guint offset = 0;
+    guchar ret;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:GtkHex.get_byte", kwlist, &py_offset))
+        return NULL;
+
+    if (py_offset) {
+        if (PyLong_Check(py_offset))
+            offset = PyLong_AsUnsignedLong(py_offset);
+        else if (PyInt_Check(py_offset))
+            offset = PyInt_AsLong(py_offset);
+        else
+            PyErr_SetString(PyExc_TypeError, "Parameter 'offset' must be an int or a long");
+        if (PyErr_Occurred())
+            return NULL;
+    }
+    
+    if ((offset >= 0) && (offset < (GTK_HEX(self->obj))->document->file_size)) {
+
+        ret = gtk_hex_get_byte(GTK_HEX(self->obj), offset);
+        return PyString_FromFormat("%c", ret);
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override hex_document_get_byte kwargs
+static PyObject *
+_wrap_hex_document_get_byte(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = {"offset", NULL};
+    PyObject *py_offset = NULL;
+    guint offset = 0;
+    guchar ret;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:HexDocument.get_byte", kwlist, &py_offset))
+        return NULL;
+
+    if (py_offset) {
+        if (PyLong_Check(py_offset))
+            offset = PyLong_AsUnsignedLong(py_offset);
+        else if (PyInt_Check(py_offset))
+            offset = PyInt_AsLong(py_offset);
+        else
+            PyErr_SetString(PyExc_TypeError, "Parameter 'offset' must be an int or a long");
+        if (PyErr_Occurred())
+            return NULL;
+    }
+
+    if ((offset >= 0) && offset < (HEX_DOCUMENT(self->obj))->file_size) {
+        ret = hex_document_get_byte(HEX_DOCUMENT(self->obj), offset);
+        return PyString_FromFormat("%c", ret);
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override hex_document_get_data kwargs
+static PyObject *
+_wrap_hex_document_get_data(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    static char *kwlist[] = {"offset", "len", NULL};
+    PyObject *py_offset = NULL, *py_len = NULL;
+    guint offset = 0, len = 0;
+    guchar *ret;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "OO:HexDocument.get_data", kwlist, 
+            &py_offset, &py_len))
+        return NULL;
+
+    if (py_offset) {
+        if (PyLong_Check(py_offset))
+            offset = PyLong_AsUnsignedLong(py_offset);
+        else if (PyInt_Check(py_offset))
+            offset = PyInt_AsLong(py_offset);
+        else
+            PyErr_SetString(PyExc_TypeError, "Parameter 'offset' must be an int or a long");
+        if (PyErr_Occurred())
+            return NULL;
+    }
+
+    if (py_len) {
+        if (PyLong_Check(py_len))
+            len = PyLong_AsUnsignedLong(py_len);
+        else if (PyInt_Check(py_len))
+            len = PyInt_AsLong(py_len);
+        else
+            PyErr_SetString(PyExc_TypeError, "Parameter 'len' must be an int or a long");
+        if (PyErr_Occurred())
+            return NULL;
+    }
+
+    if ((offset >= 0) && offset <= (HEX_DOCUMENT(self->obj))->file_size &&
+        (len >= 0) && len <= ((HEX_DOCUMENT(self->obj))->file_size - offset)) {
+
+        ret = hex_document_get_data(HEX_DOCUMENT(self->obj), offset, len);
+        if (ret) {
+            return PyString_FromStringAndSize(ret, len);
+        }
+        else {
+            return PyString_FromStringAndSize(NULL, 0);
+        }
+    }
+
+    PyErr_SetString(PyExc_ValueError, "Parameter 'offset' and/or 'len' are incorrect.");
+    return NULL;
+}
+%%
+override hex_document_get_list noargs
+static PyObject *
+_wrap_hex_document_get_list(PyGObject *self, PyObject *args, PyObject *kwargs)
+{
+    const GList *list;
+    PyObject *item, *ret = PyList_New(0);
+
+    for (list = hex_document_get_list(); list != NULL;
+         list = list->next) {
+        item = pygobject_new((GObject *)HEX_DOCUMENT(list->data));
+        if (!item) {
+            Py_DECREF(ret);
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+
+        PyList_Append(ret, item);
+        Py_DECREF(item);
+    }
+
+    return ret;
+}

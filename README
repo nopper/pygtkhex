@@ -1,0 +1,26 @@
+Python GtkHex
+----
+This is a simple Python binding to the GtkHex and HexDocument classes provided by
+ghex programm (the GNOME hex editor).
+
+Contact
+----
+
+Web: http://code.google.com/p/pygtkhex/
+
+Source (SVN): http://code.google.com/p/pygtkhex/source
+
+Resources
+----
+
+ * GNOME Desktop
+   http://www.gnome.org
+
+ * GTK+
+   http://www.gtk.org
+
+ * Python
+   http://www.python.org
+
+ * GHex
+   http://live.gnome.org/Ghex

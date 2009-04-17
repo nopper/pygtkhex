@@ -1,0 +1,482 @@
+;; -*- scheme -*-
+; object definitions ...
+(define-object Hex
+  (in-module "Gtk")
+  (parent "GtkFixed")
+  (c-name "GtkHex")
+  (gtype-id "GTK_TYPE_HEX")
+)
+
+(define-object Document
+  (in-module "Hex")
+  (parent "GObject")
+  (c-name "HexDocument")
+  (gtype-id "HEX_TYPE_DOCUMENT")
+  (fields
+    '("gchar*" "file_name")
+    '("gchar*" "path_end")
+    '("gint" "gap_size")
+    '("guint" "buffer_size")
+    '("guint" "file_size")
+  )
+)
+
+;; Enumerations and flags ...
+
+(define-enum ChangeType
+  (in-module "Hex")
+  (c-name "HexChangeType")
+  (values
+    '("string" "HEX_CHANGE_STRING")
+    '("byte" "HEX_CHANGE_BYTE")
+  )
+)
+
+(define-enum GroupType
+  (in-module "Hex")
+  (c-name "HexGroupType")
+  (values
+    '("int" "GROUP_BYTE")
+    '("int" "GROUP_WORD")
+    '("int" "GROUP_LONG")
+  )
+)
+
+;; From gtkhex.h
+
+(define-function gtk_hex_get_type
+  (c-name "gtk_hex_get_type")
+  (return-type "guint")
+)
+
+(define-function gtk_hex_new
+  (c-name "gtk_hex_new")
+  (is-constructor-of "GtkHex")
+  (return-type "GtkWidget*")
+  (parameters
+    '("HexDocument" "*")
+  )
+)
+
+(define-method set_cursor
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_cursor")
+  (return-type "none")
+  (parameters
+    '("gint" "index")
+  )
+)
+
+(define-method set_cursor_xy
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_cursor_xy")
+  (return-type "none")
+  (parameters
+    '("gint" "x")
+    '("gint" "y")
+  )
+)
+
+(define-method set_nibble
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_nibble")
+  (return-type "none")
+  (parameters
+    '("gint" "lower_nibble")
+  )
+)
+
+(define-method get_cursor
+  (of-object "GtkHex")
+  (c-name "gtk_hex_get_cursor")
+  (return-type "guint")
+)
+
+(define-method get_byte
+  (of-object "GtkHex")
+  (c-name "gtk_hex_get_byte")
+  (return-type "guchar")
+  (parameters
+  )
+)
+
+(define-method set_group_type
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_group_type")
+  (return-type "none")
+  (parameters
+    '("gint" "gt")
+  )
+)
+
+(define-method set_starting_offset
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_starting_offset")
+  (return-type "none")
+  (parameters
+    '("gint" "offset")
+  )
+)
+
+(define-method show_offsets
+  (of-object "GtkHex")
+  (c-name "gtk_hex_show_offsets")
+  (return-type "none")
+  (parameters
+    '("gboolean" "show")
+  )
+)
+
+(define-method set_font
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_font")
+  (return-type "none")
+  (parameters
+    '("PangoFontMetrics*" "font_metrics")
+    '("PangoFontDescription*" "font_desc")
+  )
+)
+
+(define-method set_insert_mode
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_insert_mode")
+  (return-type "none")
+  (parameters
+    '("gboolean" "insert")
+  )
+)
+
+(define-method set_geometry
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_geometry")
+  (return-type "none")
+  (parameters
+    '("gint" "cpl")
+    '("gint" "vis_lines")
+  )
+)
+
+(define-function gtk_hex_load_font
+  (c-name "gtk_hex_load_font")
+  (return-type "PangoFontMetrics*")
+  (parameters
+    '("const-char*" "font_name")
+  )
+)
+
+(define-method copy_to_clipboard
+  (of-object "GtkHex")
+  (c-name "gtk_hex_copy_to_clipboard")
+  (return-type "none")
+)
+
+(define-method cut_to_clipboard
+  (of-object "GtkHex")
+  (c-name "gtk_hex_cut_to_clipboard")
+  (return-type "none")
+)
+
+(define-method paste_from_clipboard
+  (of-object "GtkHex")
+  (c-name "gtk_hex_paste_from_clipboard")
+  (return-type "none")
+)
+
+(define-function add_atk_namedesc
+  (c-name "add_atk_namedesc")
+  (return-type "none")
+  (parameters
+    '("GtkWidget*" "widget")
+    '("const-gchar*" "name")
+    '("const-gchar*" "desc")
+  )
+)
+
+(define-function add_atk_relation
+  (c-name "add_atk_relation")
+  (return-type "none")
+  (parameters
+    '("GtkWidget*" "obj1")
+    '("GtkWidget*" "obj2")
+    '("AtkRelationType" "type")
+  )
+)
+
+(define-method set_selection
+  (of-object "GtkHex")
+  (c-name "gtk_hex_set_selection")
+  (return-type "none")
+  (parameters
+    '("gint" "start")
+    '("gint" "end")
+  )
+)
+
+(define-method get_selection
+  (of-object "GtkHex")
+  (c-name "gtk_hex_get_selection")
+  (return-type "gboolean")
+  (parameters
+    '("gint*" "start")
+    '("gint*" "end")
+  )
+)
+
+(define-method clear_selection
+  (of-object "GtkHex")
+  (c-name "gtk_hex_clear_selection")
+  (return-type "none")
+)
+
+(define-method delete_selection
+  (of-object "GtkHex")
+  (c-name "gtk_hex_delete_selection")
+  (return-type "none")
+)
+
+(define-method insert_autohighlight
+  (of-object "GtkHex")
+  (c-name "gtk_hex_insert_autohighlight")
+  (return-type "GtkHex_AutoHighlight*")
+  (parameters
+    '("const-gchar*" "search")
+    '("gint" "len")
+    '("const-gchar*" "colour")
+  )
+)
+
+(define-method delete_autohighlight
+  (of-object "GtkHex")
+  (c-name "gtk_hex_delete_autohighlight")
+  (return-type "none")
+  (parameters
+    '("GtkHex_AutoHighlight*" "ahl")
+  )
+)
+
+
+
+;; From hex-document.h
+
+(define-function hex_document_get_type
+  (c-name "hex_document_get_type")
+  (return-type "GType")
+)
+
+(define-function hex_document_new
+  (c-name "hex_document_new")
+  (is-constructor-of "HexDocument")
+  (return-type "HexDocument*")
+)
+
+(define-function hex_document_new_from_file
+  (c-name "hex_document_new_from_file")
+  (return-type "HexDocument*")
+  (parameters
+    '("const-gchar*" "name")
+  )
+)
+
+(define-method set_data
+  (of-object "HexDocument")
+  (c-name "hex_document_set_data")
+  (return-type "none")
+  (parameters
+    '("guint" "offset")
+    '("guint" "len")
+    '("guint" "rep_len")
+    '("guchar*" "data")
+    '("gboolean" "undoable")
+  )
+)
+
+(define-method set_byte
+  (of-object "HexDocument")
+  (c-name "hex_document_set_byte")
+  (return-type "none")
+  (parameters
+    '("guchar" "val")
+    '("guint" "offset")
+    '("gboolean" "insert")
+    '("gboolean" "undoable")
+  )
+)
+
+(define-method set_nibble
+  (of-object "HexDocument")
+  (c-name "hex_document_set_nibble")
+  (return-type "none")
+  (parameters
+    '("guchar" "val")
+    '("guint" "offset")
+    '("gboolean" "lower_nibble")
+    '("gboolean" "insert")
+    '("gboolean" "undoable")
+  )
+)
+
+(define-method get_byte
+  (of-object "HexDocument")
+  (c-name "hex_document_get_byte")
+  (return-type "guchar")
+  (parameters
+    '("guint" "offset")
+  )
+)
+
+(define-method get_data
+  (of-object "HexDocument")
+  (c-name "hex_document_get_data")
+  (return-type "guchar*")
+  (parameters
+    '("guint" "offset")
+    '("guint" "len")
+  )
+)
+
+(define-method delete_data
+  (of-object "HexDocument")
+  (c-name "hex_document_delete_data")
+  (return-type "none")
+  (parameters
+    '("guint" "offset")
+    '("guint" "len")
+    '("gboolean" "undoable")
+  )
+)
+
+(define-method read
+  (of-object "HexDocument")
+  (c-name "hex_document_read")
+  (return-type "gint")
+)
+
+(define-method write
+  (of-object "HexDocument")
+  (c-name "hex_document_write")
+  (return-type "gint")
+)
+
+(define-method write_to_file
+  (of-object "HexDocument")
+  (c-name "hex_document_write_to_file")
+  (return-type "gint")
+  (parameters
+    '("FILE*" "file")
+  )
+)
+
+(define-method export_html
+  (of-object "HexDocument")
+  (c-name "hex_document_export_html")
+  (return-type "gint")
+  (parameters
+    '("gchar*" "html_path")
+    '("gchar*" "base_name")
+    '("guint" "start")
+    '("guint" "end")
+    '("guint" "cpl")
+    '("guint" "lpp")
+    '("guint" "cpw")
+  )
+)
+
+(define-method has_changed
+  (of-object "HexDocument")
+  (c-name "hex_document_has_changed")
+  (return-type "gboolean")
+)
+
+(define-method changed
+  (of-object "HexDocument")
+  (c-name "hex_document_changed")
+  (return-type "none")
+  (parameters
+    '("gpointer" "change_data")
+    '("gboolean" "push_undo")
+  )
+)
+
+(define-method set_max_undo
+  (of-object "HexDocument")
+  (c-name "hex_document_set_max_undo")
+  (return-type "none")
+  (parameters
+    '("guint" "max_undo")
+  )
+)
+
+(define-method undo
+  (of-object "HexDocument")
+  (c-name "hex_document_undo")
+  (return-type "gboolean")
+)
+
+(define-method redo
+  (of-object "HexDocument")
+  (c-name "hex_document_redo")
+  (return-type "gboolean")
+)
+
+(define-method compare_data
+  (of-object "HexDocument")
+  (c-name "hex_document_compare_data")
+  (return-type "gint")
+  (parameters
+    '("guchar*" "s2")
+    '("gint" "pos")
+    '("gint" "len")
+  )
+)
+
+(define-method find_forward
+  (of-object "HexDocument")
+  (c-name "hex_document_find_forward")
+  (return-type "gint")
+  (parameters
+    '("guint" "start")
+    '("guchar*" "what")
+    '("gint" "len")
+    '("guint*" "found")
+  )
+)
+
+(define-method find_backward
+  (of-object "HexDocument")
+  (c-name "hex_document_find_backward")
+  (return-type "gint")
+  (parameters
+    '("guint" "start")
+    '("guchar*" "what")
+    '("gint" "len")
+    '("guint*" "found")
+  )
+)
+
+(define-method remove_view
+  (of-object "HexDocument")
+  (c-name "hex_document_remove_view")
+  (return-type "none")
+  (parameters
+    '("GtkWidget*" "view")
+  )
+)
+
+(define-method add_view
+  (of-object "HexDocument")
+  (c-name "hex_document_add_view")
+  (return-type "GtkWidget*")
+)
+
+(define-function hex_document_get_list
+  (c-name "hex_document_get_list")
+  (return-type "const-GList*")
+)
+
+(define-method is_writable
+  (of-object "HexDocument")
+  (c-name "hex_document_is_writable")
+  (return-type "gboolean")
+)
+
+
