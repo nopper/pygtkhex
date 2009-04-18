@@ -1,7 +1,17 @@
 Python GtkHex
 ----
+
 This is a simple Python binding to the GtkHex and HexDocument classes provided by
 ghex programm (the GNOME hex editor).
+
+Install
+----
+
+You could simple use the setup.py and install this program by running:
+
+$ python setup.py install
+
+Use the site for more information.
 
 Contact
 ----
