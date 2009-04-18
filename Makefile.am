@@ -15,9 +15,9 @@ pkgpyexec_LTLIBRARIES = gtkhex.la
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA= pygtkhex-1.0.pc
 
-gtkhex_la_CFLAGS = $(DEPS_CFLAGS) $(GTK_CFLAGS) $(PYTHON_INCLUDES) -I src
+gtkhex_la_CFLAGS = $(PYGTK_CFLAGS) $(GTK_CFLAGS) $(PYTHON_INCLUDES) -I src
 gtkhex_la_LDFLAGS = $(common_ldflags) -export-symbols-regex initgtkhex
-gtkhex_la_LIBADD = $(DEPS_LIBS) src/libgtkhex.la
+gtkhex_la_LIBADD = $(PYGTK_LIBS) src/libgtkhex.la
 gtkhex_la_SOURCES = $(gtkhex_sources)
 nodist_gtkhex_la_SOURCES = $(nodist_gtkhex_sources)
 
