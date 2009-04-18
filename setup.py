@@ -41,6 +41,34 @@ def pkgconfig(*packages, **kw):
 if os.name != 'nt':
     deps = pkgconfig('pygtk-2.0 gtk+-2.0')
     deps['include_dirs'].append('src')
+else:
+    PYDIR = 'C:\\Python25'
+    GTKDIR = 'C:\\GTK'
+    
+    deps = {
+        'include_dirs' : [
+            'src',
+            '%s\\include' % PYDIR,
+            '%s\\include\pygtk-2.0' % PYDIR,
+            '%s\\include' % GTKDIR,
+            '%s\\include\\atk-1.0' % GTKDIR,
+            '%s\\include\\cairo' % GTKDIR,
+            '%s\\include\\glib-2.0' % GTKDIR,
+            '%s\\include\\gtk-2.0' % GTKDIR,
+            '%s\\include\\pango-1.0' % GTKDIR,
+            '%s\\lib\\glib-2.0\\include' % GTKDIR,
+            '%s\\lib\\gtk-2.0\\include' % GTKDIR,
+        ],
+        'library_dirs' : ['%s\\lib' % GTKDIR],
+        'libraries' : [
+            'atk-1.0',
+            'gdk-win32-2.0',
+            'glib-2.0',
+            'gobject-2.0',
+            'gtk-win32-2.0',
+            'pango-1.0',
+        ]
+    }
 
 # For regenerate gtkhex.c file simply use :
 # pygobject-codegen-2.0 --override gtkhex.override --prefix gtkhex \
@@ -56,7 +84,7 @@ pygtkhex = Extension(
         os.path.join('src', 'hex-document.c'),
     ],
     define_macros=[('LIBGTKHEX_RELEASE_STRING',
-                    '\"%s\"' % LIBGTK_HEX_VERSION)],
+                    '\\"%s\\"' % LIBGTK_HEX_VERSION)],
     **deps
 )
 
