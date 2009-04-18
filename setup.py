@@ -42,6 +42,10 @@ if os.name != 'nt':
     deps = pkgconfig('pygtk-2.0 gtk+-2.0')
     deps['include_dirs'].append('src')
 
+# For regenerate gtkhex.c file simply use :
+# pygobject-codegen-2.0 --override gtkhex.override --prefix gtkhex \
+#   gtkhex.defs > gtkhex.c
+
 pygtkhex = Extension(
     'gtkhex',
     [
