@@ -1,0 +1,4 @@
+include MAINTAINERS COPYING README NEWS
+recursive-include examples *
+recursive-include tests *
+recursive-include src *

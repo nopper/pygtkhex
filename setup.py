@@ -79,7 +79,6 @@ else:
 # pygobject-codegen-2.0 --override gtkhex.override --prefix gtkhex \
 #   gtkhex.defs > gtkhex.c
 
-print deps
 pygtkhex = Extension(
     'gtkhex',
     [
