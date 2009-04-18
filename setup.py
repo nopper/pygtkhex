@@ -41,6 +41,9 @@ def pkgconfig(*packages, **kw):
 if os.name != 'nt':
     deps = pkgconfig('pygtk-2.0 gtk+-2.0')
     deps['include_dirs'].append('src')
+    deps['define_macros'] = [
+        ('LIBGTKHEX_RELEASE_STRING', '\"%s\"' % LIBGTK_HEX_VERSION)
+    ]
 else:
     PYDIR = 'C:\\Python25'
     GTKDIR = 'C:\\GTK'
@@ -67,13 +70,16 @@ else:
             'gobject-2.0',
             'gtk-win32-2.0',
             'pango-1.0',
-        ]
+        ],
+        'define_macros' : [('LIBGTKHEX_RELEASE_STRING',
+                            '\\"%s\\"' % LIBGTK_HEX_VERSION)],
     }
 
 # For regenerate gtkhex.c file simply use :
 # pygobject-codegen-2.0 --override gtkhex.override --prefix gtkhex \
 #   gtkhex.defs > gtkhex.c
 
+print deps
 pygtkhex = Extension(
     'gtkhex',
     [
@@ -83,8 +89,6 @@ pygtkhex = Extension(
         os.path.join('src', 'gtkhex.c'),
         os.path.join('src', 'hex-document.c'),
     ],
-    define_macros=[('LIBGTKHEX_RELEASE_STRING',
-                    '\\"%s\\"' % LIBGTK_HEX_VERSION)],
     **deps
 )
 
