@@ -24,7 +24,7 @@ headers
 #define NO_IMPORT_PYGOBJECT
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
-#include <gtkhex/gtkhex.h>
+#include "gtkhex.h"
 
 #define GTK_TYPE_HEX (gtk_hex_get_type())
 #define HEX_TYPE_DOCUMENT (hex_document_get_type())
