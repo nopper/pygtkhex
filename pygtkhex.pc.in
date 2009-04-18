@@ -1,9 +1,0 @@
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-libdir=@libdir@
-includedir=@includedir@
-
-Name: PyGtkHex
-Description: Python bindings for GtkHex
-Requires: gtkhex-2.22
-Version: @VERSION@
