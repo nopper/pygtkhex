@@ -1,22 +1,20 @@
 # Contributor: Francesco Piccinno <stack.box@gmail.com>
 
 pkgname=pygtkhex
-pkgver=1.0.0
+pkgver=1.1
 pkgrel=1
 pkgdesc="Python binding for GtkHex widget provided by ghex"
 arch=(i686 x86_64)
 url="http://code.google.com/p/pygtkhex/"
-license=('LGPL')
+license=('GPL')
 depends=('ghex' 'python>=2.4' 'pygtk')
 makedepends=('ghex' 'python>=2.4' 'gcc' 'make' 'automake' 'autoconf' 'pygtk')
-source=(http://pygtkhex.googlecode.com/files/$pkgname-$pkgver.tar.bz2)
-md5sums=('aef1f18576498b19313856860e77a512')
+source=(http://pygtkhex.googlecode.com/files/PyGtkHex-$pkgver.tar.bz2)
+md5sums=('b9c124191229e6ae34f707ac8361d106')
 
 build() {
-  cd "$srcdir"
-  ./autogen.sh --prefix=/usr
-  make || return 1
-  make DESTDIR="$pkgdir/" install
+  cd "$srcdir/PyGtkHex-$pkgver"
+  python setup.py install --root=$pkgdir
 }
 
 # vim:set ts=2 sw=2 et:
