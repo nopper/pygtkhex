@@ -23,6 +23,7 @@ import os.path
 import commands
 
 from distutils.core import setup, Extension
+from distutils.command.build import build
 
 PYGTKHEX_VERSION = '1.1'
 LIBGTK_HEX_VERSION = '1.0'
@@ -38,8 +39,22 @@ def pkgconfig(*packages, **kw):
         kw[k] = list(set(v))
     return kw
 
+class pygtkhex_buid(build):
+    def run(self):
+        if os.name != 'nt':
+            self.regen_gtkhex()
+
+        build.run(self)
+
+    def regen_gtkhex(self):
+        os.system("pygobject-codegen-2.0 --override gtkhex.override --prefix gtkhex" \
+                  " --register /usr/share/pygtk/2.0/defs/gtk-types.defs" \
+                  " --register /usr/share/pygtk/2.0/defs/gdk-types.defs" \
+                  " --register /usr/share/pygtk/2.0/defs/atk-types.defs" \
+                  " gtkhex.defs > gtkhex.c")
+
 if os.name != 'nt':
-    deps = pkgconfig('pygtk-2.0 gtk+-2.0')
+    deps = pkgconfig('pygtk-2.0 gtk+-2.0 atk')
     deps['include_dirs'].append('src')
     deps['define_macros'] = [
         ('LIBGTKHEX_RELEASE_STRING', '\"%s\"' % LIBGTK_HEX_VERSION)
@@ -75,10 +90,6 @@ else:
                             '\\"%s\\"' % LIBGTK_HEX_VERSION)],
     }
 
-# For regenerate gtkhex.c file simply use :
-# pygobject-codegen-2.0 --override gtkhex.override --prefix gtkhex \
-#   gtkhex.defs > gtkhex.c
-
 pygtkhex = Extension(
     'gtkhex',
     [
@@ -112,5 +123,6 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Programming Language :: Python',
         'Programming Language :: C',
-    ]
+    ],
+    cmdclass = {'build' : pygtkhex_buid}
 )
