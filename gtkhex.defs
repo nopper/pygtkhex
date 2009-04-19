@@ -479,4 +479,56 @@
   (return-type "gboolean")
 )
 
+; virtuals
 
+(define-virtual document_changed
+  (of-object "HexDocument")
+  (return-type "none")
+  (parameters
+     '("gpointer" "change_data")
+     '("gboolean" "push_undo")
+  )
+)
+
+(define-virtual undo
+  (of-object "HexDocument")
+  (return-type "none")
+)
+
+(define-virtual redo
+  (of-object "HexDocument")
+  (return-type "none")
+)
+
+(define-virtual undo_stack_forget
+  (of-object "HexDocument")
+  (return-type "none")
+)
+
+(define-virtual cursor_moved
+  (of-object "GtkHex")
+  (return-type "none")
+)
+
+(define-virtual data_changed
+  (of-object "GtkHex")
+  (return-type "none")
+  (parameters
+     '("gpointer" "change_data")
+  )
+)
+
+(define-virtual cut_clipboard
+  (of-object "GtkHex")
+  (return-type "none")
+)
+
+(define-virtual copy_clipboard
+  (of-object "GtkHex")
+  (return-type "none")
+)
+
+(define-virtual paste_clipboard
+  (of-object "GtkHex")
+  (return-type "none")
+)
