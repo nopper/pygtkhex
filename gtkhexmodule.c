@@ -26,6 +26,9 @@
 
 extern PyMethodDef gtkhex_functions[];
 
+extern PyTypeObject PyChangeData_Type;
+extern PyTypeObject PyAutoHighlight_Type;
+
 void gtkhex_register_classes(PyObject *d);
 
 DL_EXPORT(void)
@@ -45,6 +48,12 @@ initgtkhex(void)
 
     gtkhex_register_classes(d);
     gtkhex_add_constants(m, "");
+
+    Py_INCREF(&PyChangeData_Type);
+    PyModule_AddObject(m, "ChangeData", (PyObject *)&PyChangeData_Type);
+
+    Py_INCREF(&PyAutoHighlight_Type);
+    PyModule_AddObject(m, "AutoHighlight", (PyObject *)&PyAutoHighlight_Type);
 
     if (PyErr_Occurred ()) {
         PyErr_Print();

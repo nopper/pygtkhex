@@ -24,18 +24,177 @@ headers
 #define NO_IMPORT_PYGOBJECT
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
+#include <atk/atk.h>
+#include <atk/atk-enum-types.h>
 #include "gtkhex.h"
 
 #define GTK_TYPE_HEX (gtk_hex_get_type())
 #define HEX_TYPE_DOCUMENT (hex_document_get_type())
 
+/* ---------- ChangeData ---------- */
+typedef struct {
+    PyObject_HEAD
+    HexChangeData *cdata;
+} PyChangeData;
+extern PyTypeObject PyChangeData_Type;
+
+static PyObject *
+cdata_new_from_gpointer(gpointer cdata)
+{
+    PyChangeData *self = NULL;
+
+    self = (PyChangeData *)PyObject_NEW(PyChangeData,
+                                        &PyChangeData_Type);
+    if (self != NULL) {
+        self->cdata = (HexChangeData *)cdata;
+    }
+
+    return (PyObject *)self;
+}
+
+static PyObject *
+cdata_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyObject *o = NULL;
+    PyGPointer *py_pointer;
+
+    if (!PyArg_ParseTuple(args, "O!:ChangeData.__new__",
+                          &PyGPointer_Type, &py_pointer))
+        return NULL;
+
+    if (py_pointer && py_pointer->pointer)
+    {
+        o = cdata_new_from_gpointer(py_pointer->pointer);
+    }
+    return o;
+}
+
+static void
+cdata_dealloc(PyChangeData *self)
+{
+    self->cdata = NULL;
+    PyObject_DEL(self);
+}
+
+static long
+cdata_hash(PyChangeData *self)
+{
+    return (long)self->cdata;
+}
+
+static PyMethodDef cdata_methods[] = {
+    { NULL, NULL, 0 }
+};
+
+/* ---------- getters/setters ---------- */
+
+static PyObject *
+cdata_get_start(PyChangeData *self, void *closure) {
+    return PyLong_FromUnsignedLong(self->cdata->start);
+}
+
+static PyObject *
+cdata_get_end(PyChangeData *self, void *closure) {
+    return PyLong_FromUnsignedLong(self->cdata->end);
+}
+
+static PyObject *
+cdata_get_rep_len(PyChangeData *self, void *closure) {
+    return PyLong_FromUnsignedLong(self->cdata->rep_len);
+}
+
+static PyObject *
+cdata_get_lower_nibble(PyChangeData *self, void *closure) {
+    return PyBool_FromLong(self->cdata->lower_nibble);
+}
+
+static PyObject *
+cdata_get_insert(PyChangeData *self, void *closure) {
+    return PyBool_FromLong(self->cdata->insert);
+}
+
+static PyObject *
+cdata_get_type(PyChangeData *self, void *closure) {
+    return PyInt_FromLong(self->cdata->type);
+}
+
+static PyObject *
+cdata_get_v_string(PyChangeData *self, void *closure) {
+    if (self->cdata->v_string)
+        return PyString_FromString(self->cdata->v_string);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+cdata_get_v_byte(PyChangeData *self, void *closure) {
+    return PyString_FromFormat("%c", self->cdata->v_byte);
+}
+
+static PyGetSetDef cdata_getsets[] = {
+    { "start", (getter)cdata_get_start, (setter)0, NULL, NULL },
+    { "end", (getter)cdata_get_end, (setter)0, NULL, NULL },
+    { "rep_len", (getter)cdata_get_rep_len, (setter)0, NULL, NULL },
+    { "lower_nibble", (getter)cdata_get_lower_nibble, (setter)0, NULL, NULL },
+    { "insert", (getter)cdata_get_insert, (setter)0, NULL, NULL },
+    { "type", (getter)cdata_get_type, (setter)0, NULL, NULL },
+    { "v_string", (getter)cdata_get_v_string, (setter)0, NULL, NULL },
+    { "v_byte", (getter)cdata_get_v_byte, (setter)0, NULL, NULL },
+    { NULL, (getter)0, (setter)0, NULL, NULL }
+};
+
+PyTypeObject PyChangeData_Type = {
+    PyObject_HEAD_INIT(&PyType_Type)
+    0,								/* ob_size */
+    "gtkhex.ChangeData",			/* tp_name */
+    sizeof(PyChangeData),		/* tp_basicsize */
+    0,								/* tp_itemsize */
+    /* methods */
+    (destructor)cdata_dealloc,		/* tp_dealloc */
+    0,					/* tp_print */
+    0,	/* tp_getattr */
+    0,				/* tp_setattr */
+    0,					/* tp_compare */
+    0,				/* tp_repr */
+    0,							/* tp_as_number */
+    0,							/* tp_as_sequence */
+    0,							/* tp_as_mapping */
+    (hashfunc)cdata_hash,			/* tp_hash */
+    0,				/* tp_call */
+    0,				/* tp_str */
+    0,			/* tp_getattro */
+    0,			/* tp_setattro */
+    0,							/* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,			/* tp_flags */
+    NULL,						/* Documentation string */
+    0,			/* tp_traverse */
+    0,					/* tp_clear */
+    0,				/* tp_richcompare */
+    0,							/* tp_weaklistoffset */
+    0,				/* tp_iter */
+    0,			/* tp_iternext */
+    cdata_methods,				/* tp_methods */
+    0,							/* tp_members */
+    cdata_getsets,				/* tp_getset */
+    &PyBaseObject_Type,			/* tp_base */
+    0,				/* tp_dict */
+    0,							/* tp_descr_get */
+    0,							/* tp_descr_set */
+    0,							/* tp_dictoffset */
+    0,				/* tp_init */
+    0,				/* tp_alloc */
+    (newfunc)cdata_new,					/* tp_new */
+    0,							/* tp_free */
+    0,					/* tp_is_gc */
+    0,				/* tp_bases */
+};
 
 /* ---------- GtkHex_AutoHighlight ---------- */
 typedef struct {
     PyObject_HEAD;
     GtkHex_AutoHighlight *ahl;
 } PyAutoHighlight;
-staticforward PyTypeObject PyAutoHighlight_Type;
+extern PyTypeObject PyAutoHighlight_Type;
 
 static PyObject *
 ahl_new(GtkHex_AutoHighlight *ahl)
@@ -43,7 +202,7 @@ ahl_new(GtkHex_AutoHighlight *ahl)
     PyAutoHighlight *self = NULL;
 
     self = (PyAutoHighlight *)PyObject_NEW(PyAutoHighlight,
-					                       &PyAutoHighlight_Type);
+                                           &PyAutoHighlight_Type);
     if (self != NULL) {
         self->ahl = ahl;
     }
@@ -56,14 +215,6 @@ ahl_dealloc(PyAutoHighlight *self)
 {
     self->ahl = NULL;
     PyObject_DEL(self);
-}
-
-static PyObject *
-ahl_tp_getattr(PyAutoHighlight *self, char *attr)
-{
-    PyObject *result = NULL;
-    PyErr_SetString(PyExc_AttributeError, attr);
-    return result;
 }
 
 static long
@@ -80,56 +231,57 @@ static PyGetSetDef ahl_getsets[] = {
     { NULL, (getter)0, (setter)0, NULL, NULL }
 };
 
-static PyTypeObject PyAutoHighlight_Type = {
-    PyObject_HEAD_INIT(&PyAutoHighlight_Type)
-    0,					/* ob_size */
+PyTypeObject PyAutoHighlight_Type = {
+    PyObject_HEAD_INIT(&PyType_Type)
+    0,								/* ob_size */
     "gtkhex.AutoHighlight",			/* tp_name */
     sizeof(PyAutoHighlight),		/* tp_basicsize */
-    0,					/* tp_itemsize */
+    0,								/* tp_itemsize */
     /* methods */
-    (destructor)ahl_dealloc,	/* tp_dealloc */
-    (printfunc)0,			/* tp_print */
-    (getattrfunc)ahl_tp_getattr,	/* tp_getattr */
-    (setattrfunc)0,			/* tp_setattr */
-    (cmpfunc)0,	/* tp_compare */
-    (reprfunc)0,			/* tp_repr */
-    0,					/* tp_as_number */
-    0,					/* tp_as_sequence */
-    0,					/* tp_as_mapping */
-    (hashfunc)ahl_hash,	/* tp_hash */
-    (ternaryfunc)0,			/* tp_call */
-    (reprfunc)0,			/* tp_str */
-    (getattrofunc)0,			/* tp_getattro */
-    (setattrofunc)0,			/* tp_setattro */
-    0,					/* tp_as_buffer */
+    (destructor)ahl_dealloc,		/* tp_dealloc */
+    0,					/* tp_print */
+    0,	/* tp_getattr */
+    0,				/* tp_setattr */
+    0,					/* tp_compare */
+    0,				/* tp_repr */
+    0,							/* tp_as_number */
+    0,							/* tp_as_sequence */
+    0,							/* tp_as_mapping */
+    (hashfunc)ahl_hash,			/* tp_hash */
+    0,				/* tp_call */
+    0,				/* tp_str */
+    0,			/* tp_getattro */
+    0,			/* tp_setattro */
+    0,							/* tp_as_buffer */
     Py_TPFLAGS_DEFAULT,			/* tp_flags */
-    NULL, /* Documentation string */
-    (traverseproc)0,			/* tp_traverse */
-    (inquiry)0,				/* tp_clear */
-    (richcmpfunc)0,			/* tp_richcompare */
-    0,					/* tp_weaklistoffset */
-    (getiterfunc)0,			/* tp_iter */
-    (iternextfunc)0,			/* tp_iternext */
-    ahl_methods,		/* tp_methods */
-    0,					/* tp_members */
-    ahl_getsets,		/* tp_getset */
-    (PyTypeObject *)0,			/* tp_base */
-    (PyObject *)0,			/* tp_dict */
-    0,					/* tp_descr_get */
-    0,					/* tp_descr_set */
-    0,					/* tp_dictoffset */
-    (initproc)0,			/* tp_init */
-    (allocfunc)0,			/* tp_alloc */
-    (newfunc)0,				/* tp_new */
-    0,					/* tp_free */
-    (inquiry)0,				/* tp_is_gc */
-    (PyObject *)0,			/* tp_bases */
+    NULL,						/* Documentation string */
+    0,			/* tp_traverse */
+    0,					/* tp_clear */
+    0,				/* tp_richcompare */
+    0,							/* tp_weaklistoffset */
+    0,				/* tp_iter */
+    0,			/* tp_iternext */
+    ahl_methods,				/* tp_methods */
+    0,							/* tp_members */
+    ahl_getsets,				/* tp_getset */
+    &PyBaseObject_Type,			/* tp_base */
+    0,				/* tp_dict */
+    0,							/* tp_descr_get */
+    0,							/* tp_descr_set */
+    0,							/* tp_dictoffset */
+    0,				/* tp_init */
+    0,				/* tp_alloc */
+    0,					/* tp_new */
+    0,							/* tp_free */
+    0,					/* tp_is_gc */
+    0,				/* tp_bases */
 };
 
 %%
 modulename gtkhex
 %%
 import gobject.GObject as PyGObject_Type
+import atk.Object as PyAtkObject_Type
 import gtk.Widget as PyGtkWidget_Type
 import gtk.Fixed as PyGtkFixed_Type
 %%
@@ -450,4 +602,93 @@ _wrap_hex_document_get_list(PyGObject *self, PyObject *args, PyObject *kwargs)
     }
 
     return ret;
+}
+%%
+override HexDocument__do_document_changed kwargs
+static PyObject *
+_wrap_HexDocument__do_document_changed(PyObject *cls, PyObject *args, PyObject *kwargs)
+{
+    gpointer klass;
+    static char *kwlist[] = { "self", "change_data", "push_undo", NULL };
+    PyGObject *self;
+    PyChangeData *py_change_data;
+    gboolean push_undo;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"O!O!b:HexDocument.do_document_changed", kwlist,
+        &PyHexDocument_Type, &self, &PyChangeData_Type, &py_change_data, &push_undo))
+        return NULL;
+    klass = g_type_class_ref(pyg_type_from_object(cls));
+    if (HEX_DOCUMENT_CLASS(klass)->document_changed)
+        HEX_DOCUMENT_CLASS(klass)->document_changed(HEX_DOCUMENT(self->obj), py_change_data->cdata, push_undo);
+    else {
+        PyErr_SetString(PyExc_NotImplementedError, "virtual method HexDocument.document_changed not implemented");
+        g_type_class_unref(klass);
+        return NULL;
+    }
+    g_type_class_unref(klass);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+%%
+override HexDocument__proxy_do_document_changed
+static void
+_wrap_HexDocument__proxy_do_document_changed(HexDocument *self, gpointer change_data, gboolean push_undo)
+{
+    PyGILState_STATE __py_state;
+    PyObject *py_self;
+    PyObject *py_retval;
+    PyObject *py_method;
+    PyObject *py_args;
+    
+    __py_state = pyg_gil_state_ensure();
+    py_self = pygobject_new((GObject *) self);
+    if (!py_self) {
+        if (PyErr_Occurred())
+            PyErr_Print();
+        pyg_gil_state_release(__py_state);
+        return;
+    }
+
+    py_args = PyTuple_New(2);
+    PyTuple_SET_ITEM(py_args, 0, cdata_new_from_gpointer(change_data));
+    PyTuple_SET_ITEM(py_args, 1, PyBool_FromLong(push_undo));
+    
+    py_method = PyObject_GetAttrString(py_self, "do_document_changed");
+
+    if (!py_method) {
+        if (PyErr_Occurred())
+            PyErr_Print();
+        Py_DECREF(py_args);
+        Py_DECREF(py_self);
+        pyg_gil_state_release(__py_state);
+        return;
+    }
+
+    py_retval = PyObject_CallObject(py_method, py_args);
+    if (!py_retval) {
+        if (PyErr_Occurred())
+            PyErr_Print();
+        Py_XDECREF(py_retval);
+        Py_DECREF(py_method);
+        Py_DECREF(py_args);
+        Py_DECREF(py_self);
+        pyg_gil_state_release(__py_state);
+        return;
+    }
+    if (py_retval != Py_None) {
+        PyErr_SetString(PyExc_TypeError, "virtual method should return None");
+        PyErr_Print();
+        Py_XDECREF(py_retval);
+        Py_DECREF(py_method);
+        Py_DECREF(py_args);
+        Py_DECREF(py_self);
+        pyg_gil_state_release(__py_state);
+        return;
+    }
+    
+    Py_XDECREF(py_retval);
+    Py_DECREF(py_method);
+    Py_DECREF(py_args);
+    Py_DECREF(py_self);
+    pyg_gil_state_release(__py_state);
 }
