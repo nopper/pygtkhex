@@ -1212,6 +1212,9 @@ static void gtk_hex_real_data_changed(GtkHex *gh, gpointer data) {
 
 static void bytes_changed(GtkHex *gh, gint start, gint end)
 {
+	if (gh->cpl == 0)
+		return;
+
 	gint start_line = start/gh->cpl - gh->top_line;
 	gint end_line = end/gh->cpl - gh->top_line;
 
@@ -1604,8 +1607,13 @@ static void gtk_hex_finalize(GObject *o) {
 
 static gboolean gtk_hex_key_press(GtkWidget *w, GdkEventKey *event) {
 	GtkHex *gh = GTK_HEX(w);
+
 	guint old_cp = gh->cursor_pos;
 	gint ret = TRUE;
+
+	/* We are in read only mode */
+	if (gh->read_only)
+		return TRUE;
 
 	hide_cursor(gh);
 
@@ -1959,6 +1967,7 @@ static void gtk_hex_init(GtkHex *gh, gpointer klass) {
 	gh->button = 0;
 	gh->insert = FALSE; /* default to overwrite mode */
 	gh->selecting = FALSE;
+	gh->read_only = TRUE;
 
 	gh->selection.start = gh->selection.end = 0;
 	gh->selection.style = NULL;
@@ -2317,6 +2326,30 @@ void gtk_hex_set_insert_mode(GtkHex *gh, gboolean insert)
 		if(gh->cursor_pos >= gh->document->file_size)
 			gh->cursor_pos = gh->document->file_size - 1;
 	}
+}
+
+void gtk_hex_set_read_only_mode(GtkHex *gh, gboolean read_only)
+{
+	g_return_if_fail(gh != NULL);
+	g_return_if_fail(GTK_IS_HEX(gh));
+
+	gh->read_only = read_only;
+}
+
+gboolean gtk_hex_get_insert_mode(GtkHex *gh)
+{
+	g_return_if_fail(gh != NULL);
+	g_return_if_fail(GTK_IS_HEX(gh));
+
+	return gh->insert;
+}
+
+gboolean gtk_hex_get_read_only_mode(GtkHex *gh)
+{
+	g_return_if_fail(gh != NULL);
+	g_return_if_fail(GTK_IS_HEX(gh));
+
+	return gh->read_only;
 }
 
 PangoFontMetrics* gtk_hex_load_font (const char *font_name)

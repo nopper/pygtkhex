@@ -113,6 +113,7 @@ struct _GtkHex
 	gint starting_offset;
 	gboolean insert;
 	gboolean selecting;
+    gboolean read_only;
 };
 
 struct _GtkHexClass
@@ -146,6 +147,10 @@ void gtk_hex_show_offsets(GtkHex *, gboolean);
 void gtk_hex_set_font(GtkHex *, const PangoFontMetrics *, const PangoFontDescription *);
 
 void gtk_hex_set_insert_mode(GtkHex *, gboolean);
+void gtk_hex_set_read_only_mode(GtkHex *, gboolean);
+
+gboolean gtk_hex_get_insert_mode(GtkHex *);
+gboolean gtk_hex_get_read_only_mode(GtkHex *);
 
 void gtk_hex_set_geometry(GtkHex *gh, gint cpl, gint vis_lines);
 
