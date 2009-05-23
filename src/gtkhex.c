@@ -937,7 +937,7 @@ static void hex_scroll_cb(GtkWidget *w, GdkEventScroll *event, GtkHex *gh) {
 	gtk_widget_event(gh->scrollbar, (GdkEvent *)event);
 }
 
-static void hex_button_cb(GtkWidget *w, GdkEventButton *event, GtkHex *gh) {
+static gboolean hex_button_cb(GtkWidget *w, GdkEventButton *event, GtkHex *gh) {
 	if( (event->type == GDK_BUTTON_RELEASE) &&
 		(event->button == 1) ) {
 		if(gh->scroll_timeout != -1) {
@@ -989,6 +989,8 @@ static void hex_button_cb(GtkWidget *w, GdkEventButton *event, GtkHex *gh) {
 	}
 	else
 		gh->button = 0;
+
+	return FALSE;
 }
 
 static void hex_motion_cb(GtkWidget *w, GdkEventMotion *event, GtkHex *gh) {
@@ -1029,7 +1031,7 @@ static void ascii_scroll_cb(GtkWidget *w, GdkEventScroll *event, GtkHex *gh) {
 	gtk_widget_event(gh->scrollbar, (GdkEvent *)event);
 }
 
-static void ascii_button_cb(GtkWidget *w, GdkEventButton *event, GtkHex *gh) {
+static gboolean ascii_button_cb(GtkWidget *w, GdkEventButton *event, GtkHex *gh) {
 	if( (event->type == GDK_BUTTON_RELEASE) &&
 		(event->button == 1) ) {
 		if(gh->scroll_timeout != -1) {
@@ -1078,6 +1080,8 @@ static void ascii_button_cb(GtkWidget *w, GdkEventButton *event, GtkHex *gh) {
 	}
 	else
 		gh->button = 0;
+
+	return FALSE;
 }
 
 static void ascii_motion_cb(GtkWidget *w, GdkEventMotion *event, GtkHex *gh) {
