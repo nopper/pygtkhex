@@ -1628,6 +1628,11 @@ static gboolean gtk_hex_key_press(GtkWidget *w, GdkEventKey *event) {
 		gh->selecting = TRUE;
 	}
 	switch(event->keyval) {
+	case GDK_Insert:
+		{
+			gtk_hex_set_insert_mode(gh, gh->insert ? FALSE : TRUE);
+		}
+		break;
 	case GDK_BackSpace:
 		if(gh->cursor_pos > 0) {
 			hex_document_set_data(gh->document, gh->cursor_pos - 1,
