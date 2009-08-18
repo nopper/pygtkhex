@@ -24,13 +24,18 @@ import random
 import unittest
 import tempfile
 
+import gtk
 import gtkhex
 
 def random_file():
     """
     Create a temporary file with mktemp and fill it with random data
     """
-    tfile = tempfile.NamedTemporaryFile()
+    if os.name == 'nt':
+        tfile = open(tempfile.mktemp(), 'wb+')
+    else:
+        tfile = tempfile.NamedTemporaryFile()
+
     tsize = random.randint(1, 3000)
     buff = ""
     for x in xrange(tsize):
@@ -38,16 +43,77 @@ def random_file():
     tfile.write(buff)
     tfile.flush()
 
+    if os.name == 'nt':
+        tfile.close()
+
     return (tfile, buff)
+
+class MyHex(gtkhex.Document):
+    __gtype_name__ = 'MyHex'
+
+    def do_document_changed(self, cdata, push):
+        assert isinstance(cdata, gtkhex.ChangeData)
+        assert isinstance(push, bool)
+
+        if cdata.v_byte is not None:
+            assert isinstance(cdata.v_byte, str)
+
+        assert isinstance(cdata.end, long)
+        assert isinstance(cdata.insert, bool)
+        assert isinstance(cdata.lower_nibble, bool)
+        assert isinstance(cdata.rep_len, long)
+        assert isinstance(cdata.start, long)
+        assert isinstance(cdata.type, int)
+
+        if cdata.v_string is not None:
+            assert isinstance(cdata.v_string, str)
+
+class TestWidget(unittest.TestCase):
+    def setUp(self):
+        self.file, self.buff = random_file()
+        self.doc = gtkhex.hex_document_new_from_file(self.file.name)
+        self.wid = gtkhex.Hex(self.doc)
+
+    def testAH(self):
+        data = self.buff[0:1]
+        ahl = self.wid.insert_autohighlight(data, 'yellow')
+        self.assertTrue(isinstance(ahl, gtkhex.AutoHighlight))
+        self.wid.delete_autohighlight(ahl)
 
 class TestHexDocument(unittest.TestCase):
     def setUp(self):
         self.file, self.buff = random_file()
         self.doc = gtkhex.hex_document_new_from_file(self.file.name)
 
+        f = open(self.file.name, 'rb')
+        txt = f.read()
+        f.close()
+
+        if txt != self.buff:
+            raise Exception('File consistency violated')
+
+        assert self.doc is not None, 'Error in gtkhex.Document'
+
+    def testCD(self):
+        d = MyHex()
+
+        pattern = 'miao'
+        d.set_data(0, len(pattern), d.file_size, pattern, True)
+        d.set_byte('S', 0, True, True)
+
+    def tearDown(self):
+        try:
+            os.unlink(self.file.name)
+            self.doc.destroy()
+            self.doc = None
+            self.file = None
+            self.buff = None
+        except:
+            pass
+
     def test_file(self):
         "Test file consinstency"
-        f = open(self.file.name, "r")
+        f = open(self.file.name, "rb")
         tmp = f.read()
         f.close()
 
@@ -138,6 +204,9 @@ class TestHexDocument(unittest.TestCase):
 
     def test_export_html(self):
         "Test the export_html function"
+        if os.name == 'nt':
+            return
+
         # Really dummy
         tfile, path = tempfile.mkstemp()
         self.doc.export_html(os.path.dirname(path), os.path.basename(path),

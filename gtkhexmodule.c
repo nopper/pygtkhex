@@ -49,8 +49,20 @@ initgtkhex(void)
     gtkhex_register_classes(d);
     gtkhex_add_constants(m, "");
 
+    PyChangeData_Type.ob_type = &PyType_Type;
+    PyChangeData_Type.tp_base = &PyBaseObject_Type;
+
+    if (PyType_Ready(&PyChangeData_Type) < 0)
+        return;
+
     Py_INCREF(&PyChangeData_Type);
     PyModule_AddObject(m, "ChangeData", (PyObject *)&PyChangeData_Type);
+
+    PyAutoHighlight_Type.ob_type = &PyType_Type;
+    PyAutoHighlight_Type.tp_base = &PyBaseObject_Type;
+
+    if (PyType_Ready(&PyAutoHighlight_Type) < 0)
+        return;
 
     Py_INCREF(&PyAutoHighlight_Type);
     PyModule_AddObject(m, "AutoHighlight", (PyObject *)&PyAutoHighlight_Type);

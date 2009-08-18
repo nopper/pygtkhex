@@ -144,7 +144,7 @@ static PyGetSetDef cdata_getsets[] = {
 };
 
 PyTypeObject PyChangeData_Type = {
-    PyObject_HEAD_INIT(&PyType_Type)
+    PyObject_HEAD_INIT(NULL)
     0,								/* ob_size */
     "gtkhex.ChangeData",			/* tp_name */
     sizeof(PyChangeData),		/* tp_basicsize */
@@ -176,7 +176,7 @@ PyTypeObject PyChangeData_Type = {
     cdata_methods,				/* tp_methods */
     0,							/* tp_members */
     cdata_getsets,				/* tp_getset */
-    &PyBaseObject_Type,			/* tp_base */
+    NULL,			/* tp_base */
     0,				/* tp_dict */
     0,							/* tp_descr_get */
     0,							/* tp_descr_set */
@@ -232,7 +232,7 @@ static PyGetSetDef ahl_getsets[] = {
 };
 
 PyTypeObject PyAutoHighlight_Type = {
-    PyObject_HEAD_INIT(&PyType_Type)
+    PyObject_HEAD_INIT(NULL)
     0,								/* ob_size */
     "gtkhex.AutoHighlight",			/* tp_name */
     sizeof(PyAutoHighlight),		/* tp_basicsize */
@@ -264,7 +264,7 @@ PyTypeObject PyAutoHighlight_Type = {
     ahl_methods,				/* tp_methods */
     0,							/* tp_members */
     ahl_getsets,				/* tp_getset */
-    &PyBaseObject_Type,			/* tp_base */
+    NULL,			/* tp_base */
     0,				/* tp_dict */
     0,							/* tp_descr_get */
     0,							/* tp_descr_set */

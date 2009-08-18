@@ -31,6 +31,7 @@
 #include "gtkhex.h"
 #include "gtkhex-private.h"
 #include "ghex-marshal.h"
+#include <string.h>
 
 #define DISPLAY_BORDER 4
 
@@ -437,7 +438,7 @@ static void render_hex_highlights(GtkHex *gh, gint cursor_line)
 			el = curHighlight->end_line;
 
 			if (curHighlight->style)
-				gtk_style_attach(curHighlight->style, gh->xdisp->window);
+				curHighlight->style = gtk_style_attach(curHighlight->style, gh->xdisp->window);
 			state = (gh->active_view == VIEW_HEX)?GTK_STATE_ACTIVE:GTK_STATE_INSENSITIVE;
 			if (cursor_line == sl)
 			{
@@ -515,7 +516,7 @@ static void render_ascii_highlights(GtkHex *gh, gint cursor_line)
 			el = curHighlight->end_line;
 
 			if (curHighlight->style)
-				gtk_style_attach(curHighlight->style, gh->adisp->window);
+				curHighlight->style = gtk_style_attach(curHighlight->style, gh->adisp->window);
 			state = (gh->active_view == VIEW_ASCII)?GTK_STATE_ACTIVE:GTK_STATE_INSENSITIVE;
 			if (cursor_line == sl)
 			{
@@ -554,7 +555,7 @@ static void render_ascii_highlights(GtkHex *gh, gint cursor_line)
 								   gh->cpl*gh->char_width, gh->char_height);
 			}
 			if (curHighlight->style)
-				gtk_style_attach(curHighlight->style, gh->adisp->window);
+				curHighlight->style = gtk_style_attach(curHighlight->style, gh->adisp->window);
 		}
 		curHighlight = curHighlight->next;
 		while (curHighlight == NULL && nextList)
@@ -2138,7 +2139,7 @@ void gtk_hex_set_cursor(GtkHex *gh, gint index) {
 		if(!gh->insert && index == gh->document->file_size)
 			index--;
 
-		index == MAX(index, 0);
+		index = MAX(index, 0);
 
 		hide_cursor(gh);
 		
@@ -2347,16 +2348,16 @@ void gtk_hex_set_read_only_mode(GtkHex *gh, gboolean read_only)
 
 gboolean gtk_hex_get_insert_mode(GtkHex *gh)
 {
-	g_return_if_fail(gh != NULL);
-	g_return_if_fail(GTK_IS_HEX(gh));
+	g_return_val_if_fail(gh != NULL, FALSE);
+	g_return_val_if_fail(GTK_IS_HEX(gh), FALSE);
 
 	return gh->insert;
 }
 
 gboolean gtk_hex_get_read_only_mode(GtkHex *gh)
 {
-	g_return_if_fail(gh != NULL);
-	g_return_if_fail(GTK_IS_HEX(gh));
+	g_return_val_if_fail(gh != NULL, FALSE);
+	g_return_val_if_fail(GTK_IS_HEX(gh), FALSE);
 
 	return gh->read_only;
 }
